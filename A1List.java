@@ -97,10 +97,87 @@ public class A1List extends List {
 
     public boolean sanity()
     {
-        return true;
+		A1List it1 = this;
+		A1List it2 = this;
+		/* check the existence of loop in the forward direction
+		alongside the verification of loop invariants 1. node.next.prev = node and 2. node.prev.next = node */
+		while(it2.next != null && it2.next.next != null){
+			if(it1.next.prev != it1){
+				return false; //Inavriant 1 unsattisfied at it1
+			}
+			it2 = it2.next.next; //move it2 by 2 nodes per iteration
+			it1 = it1.next; //move it1 by 1 node per iteration
+			if(it1.prev.next != it1){
+				return false; //Inavriant 2 unsattisfied at it1
+			}
+			if(it1 == it2){
+				return false;
+				/* since it1 and it2 are moving at different speeds, it is natural that they do not meet.
+				However if they meet, it means they are both struck in a cycle,
+				which means the given A1List has a cycle and hence sanity returns false */
+			}
+		}
+		while(it1.next != null){
+			/* This loop stops only if it1 reaches the tail sentinel.
+			This was not possible until it2 had already reached the tail sentinel 
+			since it2 moved at a faster speed and hence this condition was not verified 
+			in the last loop.*/
+			if(it1.next.prev != it1){
+				return false; //Inavriant 1 unsattisfied at it1
+			}
+			it1 = it1.next;
+			if(it1.prev.next != it1){
+				return false; //Inavriant 2 unsattisfied at it1
+			}
+		}
+		if(it1.key != -1 || it1.address != -1 || it1.size != -1){
+			return false;
+			//this if ensures that when it1.next is null
+			//that is when it1 is tail sentinel, it takes (-1,-1,-1) only.
+		}
+		/* check the existence of loop in the backward direction
+		alongside the verification of loop invariants node.next.prev = node and node.prev.next = node */
+		it1 = this;
+		it2 = this;
+        while(it2.prev != null && it2.prev.prev != null){
+			if(it1.prev.next != it1){
+				return false; //Inavriant 1 unsattisfied at it1
+			}
+			it2 = it2.prev.prev; //move it2 by 2 nodes per iteration
+			it1 = it1.prev; //move it1 by 1 node per iteration
+			if(it1.next.prev != it1){
+				return false; //Inavriant 2 unsattisfied at it1
+			}
+			if(it1 == it2){
+				return false;
+				/* since it1 and it2 are moving at different speeds, it is natural that they do not meet.
+				However if they meet, it means they are both struck in a cycle,
+				which means the given A1List has a cycle and hence sanity returns false */
+			}
+		}
+		while(it1.prev != null){
+			/* This loop stops only if it1 reaches the head sentinel.
+			This was not possible until it2 had already reached the head sentinel 
+			since it2 moved at a faster speed and hence this condition was not verified 
+			in the last loop.*/
+			if(it1.prev.next != it1){
+				return false; //Inavriant 1 unsattisfied at it1
+			}
+			it1 = it1.prev;
+			if(it1.next.prev != it1){
+				return false; //Inavriant 2 unsattisfied at it1
+			}
+		}
+		if(it1.key != -1 || it1.address != -1 || it1.size != -1){
+			return false;
+			//this if ensures that when it1.prev is null
+			//that is when it1 is head sentinel, it takes (-1,-1,-1) only.
+		}
+		
+		return true; //if all invariants are satisfied, the list is sane
     }
 
-	//The following functions are private and have been called to make some functions easier.
+	//The following functions are private and have been called to make other functions easier.
 	
 	private A1List search(Dictionary d)
 	{
@@ -153,34 +230,6 @@ public class A1List extends List {
 			//if it ends at a non-tail, then it is the required node and is returned
 		}
 		return null;
-	}
-	
-	//The following functions have been defined to make debugging easier and can be called only for A1List
-	
-	public void printNode()
-	{
-		//this function prints the content of a node
-		System.out.println(this.address + " " + this.size + " " + this.key);
-	}
-	
-	public void printList()
-	{
-		//this function prints a List starting from the first element to the end excluding the sentinel nodes
-		System.out.println("Starting to print");
-		A1List it = this.getFirst();
-		while(it.next != null){
-			it.printNode();
-			it = it.next;
-		}
-		System.out.println("Print ended");
-	}
-	
-	public int countNodes()
-	{
-		//this function counts the total number of nodes in the list
-		int count = 0;
-		for (Dictionary d = this.getFirst(); d != null; d = d.getNext()) count = count + 1;
-		return count;
 	}
 }
 
