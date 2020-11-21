@@ -61,8 +61,13 @@ public class A1List extends List {
 
     public A1List Find(int k, boolean exact)
     {
-		return this.getFirst().Find_current(k, exact);
-		//calls the Find_current function at the head node
+		A1List it = this.getFirst(); //move to the first node of the list
+		if(it != null){
+			return it.Find_current(k, exact);
+			//calls the Find_current function at the first node
+		}
+		return it;
+		//return the null node if it is null
     }
 
     public A1List getFirst()
