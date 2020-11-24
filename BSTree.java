@@ -15,7 +15,7 @@ public class BSTree extends Tree {
     }    
 
     public BSTree(int address, int size, int key){
-        super(address, size, key); 
+        super(address, size, key);
     }
 
     public BSTree Insert(int address, int size, int key) 
@@ -69,34 +69,31 @@ public class BSTree extends Tree {
 		}
     }
 
-    public boolean Delete(Dictionary e)
-    { 
+    public boolean Delete(Dictionary d)
+    {
+		if(d.key == -1 && d.address == -1 && d.size == -1){
+			return false;
+			//removal of sentinel node is not permitted
+		}
+		BSTree it = this.search(d); //search the dictionary d and store in it
+		if(it != null){
+			this.DelNode(it);
+			return true;
+		}
+		//if it is null, it implies that d did not exist in BSTree and hence false is returned
         return false;
     }
         
     public BSTree Find(int key, boolean exact)
     {
 		BSTree it = this.getFirst(); //the first element is the smallest key element
-		while(it != null){
-			//it enters the loop if the tree is non-empty
-			//we traverse to the next element in the inorder
-			//since the inorder is the sorted sequence
-			if((exact && it.key == key) || (!exact && it.key >= key)){
-				return it;
-				//if exact is true, the condition checks if it has key same as required and returns it if true
-				//if exact is false, condition checks whether it has a key higher than the key required
-				//in case of not exact, the smallest it.key is returned satisying the given condition
-				//thus, binary tree implements Best Fit Algorithm for searching an element
-			}
-			if(exact && it.key > key){
-				return null;
-				//since the loop checks every it.key with key
-				//it returns null, whenever the value of it.key exceeds key
-				//in case an exact search is required
-			}
-			it = it.getNext(); //it traverses the inorder of the tree
+		if(it != null){
+			//if the first element is not null
+			it = it.Find_current(key, exact); //find the element with given key conditions and return the smallest
 		}
-        return null; //if it becomes null, the required key is not found and hence null is returned
+		return it;
+		//it is null if tree is empty or the element is not found
+		//else returns the least element with given key, i.e. it
     }
 
     public BSTree getFirst()
@@ -174,6 +171,7 @@ public class BSTree extends Tree {
 			//if keys of a and this are same
 			//it returns whether this has smaller (or at least equal) address than a
 	}
+	
 	public BSTree getRoot(){
 		//this function returns the root of the binary tree
 		//if the tree is empty, null is returned
@@ -194,6 +192,94 @@ public class BSTree extends Tree {
 		//the node is a sentinel without a child, hence the tree is empty
 	}
 	
+	public BSTree Find_current(int key, boolean exact)
+	{
+		//this function searches the BSTree from current node
+		//all the semantics are same as the Find function
+		//except that the find does a search starting from the least Node
+		//while Find_current searches it from the current node, only in the forward direction
+		BSTree it = this;
+		while(it != null){
+			//it traverses to the next element in the inorder and stops only when the last element is reached
+			if((exact && it.key == key) || (!exact && it.key >= key)){
+				return it;
+				//if exact is true, the condition checks if it has key same as required and returns it if true
+				//if exact is false, condition checks whether it has a key higher than the key required
+				//in case of not exact, the smallest it.key is returned satisying the given condition
+				//thus, binary tree implements Best Fit Algorithm for searching an element
+			}
+			if(exact && it.key > key){
+				return null;
+				//since the loop checks every it.key with key
+				//it returns null, whenever the value of it.key exceeds key
+				//in case an exact search is required
+			}
+			it = it.getNext(); //it traverses the inorder of the tree
+		}
+        return null; //if it becomes null, the required key is not found till the end and hence null is returned
+	}
+	
+	public BSTree search(Dictionary d)
+	{
+		BSTree it = this.getFirst(); //move to the first element of the inorder
+		it = it.Find_current(d.key, true); //find the first element that matches d.key
+		while(it != null && (it.address != d.address || it.size != d.size)){
+			it = it.getNext().Find_current(d.key, true);
+			//this loop is entered if one node with key as d.key is found and it does not match the other attributes of d
+			//in that case, perform search for d.key starting from the next node in the inorder
+		}
+		return it;
+		//the loop stops when
+		//1. it is null and hence no such node exists leading to returning of null pointer OR
+		//2. it points to a node which matches d
+	}
+	
+	public void DelNode(BSTree Node){
+		//deletes the node T from the given BSTree
+		//the reference to the node T is known
+		BSTree it = Node;
+		if(it.left == null && it.right == null){
+			//it is a leaf
+			if(it.parent.left == it){
+				//check if it is a left child of the parent
+				it.parent.left = null;
+			}
+			else{
+				//otherwise it would be the right child of its parent
+				it.parent.right = null;
+			}
+			it.parent = null;
+		}
+		else if(it.left == null){
+			//only right child of it exists
+			it.key = it.right.key;
+			it.address = it.right.address;
+			it.size = it.right.size; //copy the right child in it
+			it.right.parent = null;
+			it.right = null; //delete the right child
+		}
+		else if(it.right == null){
+			//only left child of it exists
+			it.key = it.left.key;
+			it.address = it.left.address;
+			it.size = it.left.size; //copy the left child in it
+			it.left.parent = null;
+			it.left = null; //delete the left child
+		}
+		else{
+			it = it.right; //move to the right child more than it
+			while(it.left != null){
+				it = it.left;
+				//keep moving left till the least node larger than Node is reached
+				//it is thus the successor of Node and must have maximum one child
+			}
+			Node.key = it.key;
+			Node.address = it.address;
+			Node.size = it.size; //copy the contents of it in Node
+			Node.DelNode(it); //Delete it from the tree
+		}
+	}
+	
 	//The following functions are only for debugging
 	public void printNode(){
 		if(this.parent == null){
@@ -211,11 +297,6 @@ public class BSTree extends Tree {
 		System.out.println("Starting to print Preorder");
 		if(it != null){
 			it.preorder();
-		}
-		System.out.println("Ended Printing");
-		System.out.println("Starting to print Inorder");
-		if(it != null){
-			it.inorder();
 		}
 		System.out.println("Ended Printing");
 		System.out.println("Starting to print order");
