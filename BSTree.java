@@ -21,6 +21,8 @@ public class BSTree extends Tree {
 
     public BSTree Insert(int address, int size, int key) 
     {
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree newNode = new BSTree(address, size, key); //store the data to be inserted in a new node
 		if(this.parent == null){
 			//this block is executed if the current node is a sentinel
@@ -72,6 +74,8 @@ public class BSTree extends Tree {
 
     public boolean Delete(Dictionary d)
     {
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		if(d.key == -1 && d.address == -1 && d.size == -1){
 			return false;
 			//removal of sentinel node is not permitted
@@ -87,6 +91,8 @@ public class BSTree extends Tree {
         
     public BSTree Find(int key, boolean exact)
     {
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = this.getRoot(); //the root is called
 		if(it != null){
 			//if the root element is not null
@@ -99,6 +105,8 @@ public class BSTree extends Tree {
 
     public BSTree getFirst()
     {
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = this;
 		it = it.getRoot();
 		if(it != null){
@@ -118,6 +126,8 @@ public class BSTree extends Tree {
 
     public BSTree getNext()
     {
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = this;
 		if(it.parent == null){
 			return null;
@@ -158,6 +168,8 @@ public class BSTree extends Tree {
 
     public boolean sanity()
     {
+		/*Time Complexity: O(n), n = number of nodes
+		Space Complexity: O(n)*/
 		HashSet<BSTree> data = new HashSet<BSTree>(); //define an efficient DS to store data
 		BSTree it = this;
 		//go to the root and store each element in the HashSet data
@@ -184,13 +196,15 @@ public class BSTree extends Tree {
 		data.clear();
 		//check if a cycle is there in the list starting from root
 		//simultaneously check the invariants regarding parent and child
-		return this.checkloop(data);
+		return it.checkloop(data);
     }
 	
 	//The following functions are only helper functions and will be kept private.
 	private boolean compare(Dictionary a)
 	{
 		//this function returns true if this is smaller than (or equal to) a, else false
+		/*Time Complexity: O(1)
+		Space Complexity: O(1)*/
 		return (this.key != a.key)?(this.key < a.key):(this.address <= a.address);
 			//if keys of this and a are not same,
 			//the function returns true of key of this is lesser
@@ -202,6 +216,8 @@ public class BSTree extends Tree {
 	private BSTree getRoot(){
 		//this function returns the root of the binary tree
 		//if the tree is empty, null is returned
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = this;
 		if(it.parent != null || it.right != null){
 			//this block is executed if it has a parent, that is it is not a sentinel node
@@ -225,6 +241,8 @@ public class BSTree extends Tree {
 		//all the semantics are same as the Find function
 		//except that the find does a search starting from the root Node
 		//while Find_current searches it from the current node in the current subtree
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = this;
 		if(key <= it.key){
 			//it has a key more than or equal to the required key
@@ -262,6 +280,8 @@ public class BSTree extends Tree {
 	{
 		//this function searches a dictionary in the current subtree
 		//returns null if dictionary not found
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = this;
 		if(d.key < it.key){
 			//it has a key more than or equal to the required key
@@ -305,6 +325,8 @@ public class BSTree extends Tree {
 	private void DelNode(BSTree Node){
 		//deletes the node Node from the given BSTree
 		//the reference to the node Node is known
+		/*Time Complexity: O(h), h = height of binary search Tree
+		Space Complexity: O(1)*/
 		BSTree it = Node;
 		if(it.left == null && it.right == null){
 			//it is a leaf
@@ -359,6 +381,8 @@ public class BSTree extends Tree {
 	}
 	
 	private boolean checkloop(HashSet<BSTree> h){
+		/*Time Complexity: O(n), n = number of nodes
+		Space Complexity: O(1)*/
 		if(h.contains(this)){
 			return false; //the given element exists before insertion thus loop found
 		}
@@ -370,18 +394,18 @@ public class BSTree extends Tree {
 			if(this.right == null){
 				return true; //this is a leaf
 			}
-			if(this.right.parent != it){
+			if(this.right.parent != this){
 				return false; //invariant x.right.parent = x fails
 			}
 			return this.right.checkloop(h); //check whether loop exists in left tree
 		}
-		if(this.left.parent != it){
+		if(this.left.parent != this){
 			return false; //invariant x.left.parent = x fails
 		}
 		if(this.right == null){
 			return this.left.checkloop(h); //check if loop exists in left tree
 		}
-		if(this.right.parent != it){
+		if(this.right.parent != this){
 			return false; //invariant x.right.parent = x fails
 		}
 		return (this.right.checkloop(h) && this.left.checkloop(h)); //check if both left and right subtree include no loop

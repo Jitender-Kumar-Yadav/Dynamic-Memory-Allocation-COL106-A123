@@ -15,6 +15,8 @@ public class A2DynamicMem extends A1DynamicMem {
     // For A2, implement the Defragment function for the class A2DynamicMem and test using BSTrees and AVLTrees. 
     //Your BST (and AVL tree) implementations should obey the property that keys in the left subtree <= root.key < keys in the right subtree. How is this total order between blocks defined? It shouldn't be a problem when using key=address since those are unique (this is an important invariant for the entire assignment123 module). When using key=size, use address to break ties i.e. if there are multiple blocks of the same size, order them by address. Now think outside the scope of the allocation problem and think of handling tiebreaking in blocks, in case key is neither of the two. 
     public void Defragment() {
+		/*Time Complexity: O(h*n), h = height of binary search Tree, n = number of nodes
+		Space Complexity: O(n)*/
 		Dictionary alt;
 		alt = new BSTree(); //initialise BST if type = 2
 		if(this.type == 3){
