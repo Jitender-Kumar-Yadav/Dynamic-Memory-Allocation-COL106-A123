@@ -160,8 +160,31 @@ public class BSTree extends Tree {
     {
 		HashSet<BSTree> data = new HashSet<BSTree>(); //define an efficient DS to store data
 		BSTree it = this;
-		
-        return false;
+		//go to the root and store each element in the HashSet data
+		//check if there is a cycle in the path to root by comparing the element in data
+		if(it.parent != null || it.right != null){
+			//this block is executed if it has a parent, that is it is not a sentinel node
+			//or if it is sentinel node, it has a right child, that is it is not empty
+			data.add(it);
+			while(it.parent != null){
+				//this loop is executed if this is a container node
+				it = it.parent; //keep on going up
+				if(data.contains(it)){
+					return false; //if element is already in data the list has a cycle
+				}
+				data.add(it);
+			}
+			it = it.right;
+			//the loop continues till it reaches a node whose parent is null which is the sentinel node by definition
+			//the root is the right child of this sentiel
+		}
+		else{
+			return true;
+		}
+		data.clear();
+		//check if a cycle is there in the list starting from root
+		//simultaneously check the invariants regarding parent and child
+		return this.checkloop(data);
     }
 	
 	//The following functions are only helper functions and will be kept private.
@@ -293,6 +316,7 @@ public class BSTree extends Tree {
 				//otherwise it would be the right child of its parent
 				it.parent.right = null;
 			}
+			it.parent = null;
 			return;
 		}
 		else if(it.left == null){
@@ -304,6 +328,8 @@ public class BSTree extends Tree {
 				it.parent.left = it.right; //shift left child of parent to its only child
 			}
 			it.right.parent = it.parent; //shift parent of child to own parent
+			it.parent = null;
+			it.right = null;
 			return;
 		}
 		else if(it.right == null){
@@ -315,6 +341,8 @@ public class BSTree extends Tree {
 				it.parent.left = it.left; //shift left child of parent to its only child
 			}
 			it.left.parent = it.parent; //shift parent of child to own parent
+			it.parent = null;
+			it.left = null;
 			return;
 		}
 		else{
@@ -329,9 +357,33 @@ public class BSTree extends Tree {
 			return;
 		}
 	}
+	
+	private boolean checkloop(HashSet<BSTree> h){
+		if(h.contains(this)){
+			return false; //the given element exists before insertion thus loop found
+		}
+		if(this.parent.left != this && this.parent.right != this){
+			return false; //loop invariant it.parent.right or left = it fails
+		}
+		h.add(this);
+		if(this.left == null){
+			if(this.right == null){
+				return true; //this is a leaf
+			}
+			if(this.right.parent != it){
+				return false; //invariant x.right.parent = x fails
+			}
+			return this.right.checkloop(h); //check whether loop exists in left tree
+		}
+		if(this.left.parent != it){
+			return false; //invariant x.left.parent = x fails
+		}
+		if(this.right == null){
+			return this.left.checkloop(h); //check if loop exists in left tree
+		}
+		if(this.right.parent != it){
+			return false; //invariant x.right.parent = x fails
+		}
+		return (this.right.checkloop(h) && this.left.checkloop(h)); //check if both left and right subtree include no loop
+	}
 }
-
-
- 
-
-
