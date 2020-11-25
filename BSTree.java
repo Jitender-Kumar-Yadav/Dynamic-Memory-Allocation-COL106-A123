@@ -184,7 +184,7 @@ public class BSTree extends Tree {
 		data.clear();
 		//check if a cycle is there in the list starting from root
 		//simultaneously check the invariants regarding parent and child
-		return this.checkloop(data);
+		return it.checkloop(data);
     }
 	
 	//The following functions are only helper functions and will be kept private.
@@ -370,18 +370,18 @@ public class BSTree extends Tree {
 			if(this.right == null){
 				return true; //this is a leaf
 			}
-			if(this.right.parent != it){
+			if(this.right.parent != this){
 				return false; //invariant x.right.parent = x fails
 			}
 			return this.right.checkloop(h); //check whether loop exists in left tree
 		}
-		if(this.left.parent != it){
+		if(this.left.parent != this){
 			return false; //invariant x.left.parent = x fails
 		}
 		if(this.right == null){
 			return this.left.checkloop(h); //check if loop exists in left tree
 		}
-		if(this.right.parent != it){
+		if(this.right.parent != this){
 			return false; //invariant x.right.parent = x fails
 		}
 		return (this.right.checkloop(h) && this.left.checkloop(h)); //check if both left and right subtree include no loop
