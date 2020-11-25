@@ -1,5 +1,6 @@
 // Class: Implementation of BST in A2
 // Implement the following functions according to the specifications provided in Tree.java
+import java.util.*;
 
 public class BSTree extends Tree {
 
@@ -156,7 +157,10 @@ public class BSTree extends Tree {
     }
 
     public boolean sanity()
-    { 
+    {
+		HashSet<BSTree> data = new HashSet<BSTree>(); //define an efficient DS to store data
+		BSTree it = this;
+		
         return false;
     }
 	
@@ -289,40 +293,40 @@ public class BSTree extends Tree {
 				//otherwise it would be the right child of its parent
 				it.parent.right = null;
 			}
-			it.parent = null;
+			return;
 		}
-		else if(it.left == null && it.right.left == null && it.right.right == null){
+		else if(it.left == null){
 			//only right child of it exists
-			it.key = it.right.key;
-			it.address = it.right.address;
-			it.size = it.right.size; //copy the right child in it
-			it.right.parent = null;
-			it.right = null; //delete the right child
+			if(it.parent.right == it){
+				it.parent.right = it.right; //shift right child of parent to its only child
+			}
+			else{
+				it.parent.left = it.right; //shift left child of parent to its only child
+			}
+			it.right.parent = it.parent; //shift parent of child to own parent
+			return;
 		}
-		else if(it.right == null && it.left.left == null && it.left.right == null){
+		else if(it.right == null){
 			//only left child of it exists
-			it.key = it.left.key;
-			it.address = it.left.address;
-			it.size = it.left.size; //copy the left child in it
-			it.left.parent = null;
-			it.left = null; //delete the left child
+			if(it.parent.right == it){
+				it.parent.right = it.left; //shift right child of parent to its only child
+			}
+			else{
+				it.parent.left = it.left; //shift left child of parent to its only child
+			}
+			it.left.parent = it.parent; //shift parent of child to own parent
+			return;
 		}
 		else{
 			BSTree it1 = it.getNext(); //move to the successor of it
-			if(it1 == null){
-				it = it.left; //move to the left or a smaller element
-				while(it.right != null){
-					it = it.right; //keep moving right till the right child does not exist
-					//this must lead to the successor of it
-				}
-			}
-			else{
-				it = it1;
-			}
-			Node.key = it.key;
-			Node.address = it.address;
-			Node.size = it.size; //copy the contents of it in Node
-			this.DelNode(it); //Delete it from the tree
+			int key1 = it1.key;
+			int address1 = it1.address;
+			int size1 = it1.size; //copy the contents of it in Node
+			this.DelNode(it1); //Delete it from the tree
+			Node.key = key1;
+			Node.address = address1;
+			Node.size = size1; //copy the contents of it in Node
+			return;
 		}
 	}
 }
