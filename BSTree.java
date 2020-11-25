@@ -86,9 +86,9 @@ public class BSTree extends Tree {
         
     public BSTree Find(int key, boolean exact)
     {
-		BSTree it = this.getFirst(); //the first element is the smallest key element
+		BSTree it = this.getRoot(); //the root is called
 		if(it != null){
-			//if the first element is not null
+			//if the root element is not null
 			it = it.Find_current(key, exact); //find the element with given key conditions and return the smallest
 		}
 		return it;
@@ -196,47 +196,88 @@ public class BSTree extends Tree {
 	{
 		//this function searches the BSTree from current node
 		//all the semantics are same as the Find function
-		//except that the find does a search starting from the least Node
-		//while Find_current searches it from the current node, only in the forward direction
+		//except that the find does a search starting from the root Node
+		//while Find_current searches it from the current node in the current subtree
 		BSTree it = this;
-		while(it != null){
-			//it traverses to the next element in the inorder and stops only when the last element is reached
-			if((exact && it.key == key) || (!exact && it.key >= key)){
-				return it;
-				//if exact is true, the condition checks if it has key same as required and returns it if true
-				//if exact is false, condition checks whether it has a key higher than the key required
-				//in case of not exact, the smallest it.key is returned satisying the given condition
-				//thus, binary tree implements Best Fit Algorithm for searching an element
+		if(key <= it.key){
+			//it has a key more than or equal to the required key
+			//check if the left subtree has one of the required keys or not
+			if(it.left == null){
+				//there is no left subtree
+				//check if it is the required key
+				if((exact && it.key == key) || !exact){
+					return it; //it has a key which matches the conditions return it
+				}
+				return null; //if exact is true but it's key which does not match key null is returned
 			}
-			if(exact && it.key > key){
-				return null;
-				//since the loop checks every it.key with key
-				//it returns null, whenever the value of it.key exceeds key
-				//in case an exact search is required
+			BSTree it2 = it.left.Find_current(key, exact); //if left subtree exists, search for the key there
+			//recursively assumed that the best fit key of it.left is found
+			if(it2 == null){
+				//there is no key in the left subtree which matches given key
+				//handle similar to it.left == null
+				if((exact && it.key == key) || !exact){
+					return it; //it has a key which matches the conditions return it
+				}
+				return null; //if exact is true but it's key which does not match key null is returned
 			}
-			it = it.getNext(); //it traverses the inorder of the tree
+			//if it2 exists and is non null return it as the required element
+			return it2;
 		}
-        return null; //if it becomes null, the required key is not found till the end and hence null is returned
+		//the key of it is smaller than the key needed, search in the right subtree
+		if(it.right != null){
+			it = it.right.Find_current(key, exact); //search in the right subtree
+			return it; //it is the required element
+		}
+		return null; //if no right subtree, return null as key not found
 	}
 	
 	public BSTree search(Dictionary d)
 	{
-		BSTree it = this.getFirst(); //move to the first element of the inorder
-		it = it.Find_current(d.key, true); //find the first element that matches d.key
-		while(it != null && (it.address != d.address || it.size != d.size)){
-			it = it.getNext().Find_current(d.key, true);
-			//this loop is entered if one node with key as d.key is found and it does not match the other attributes of d
-			//in that case, perform search for d.key starting from the next node in the inorder
+		//this function searches a dictionary in the current subtree
+		//returns null if dictionary not found
+		BSTree it = this;
+		if(d.key < it.key){
+			//it has a key more than or equal to the required key
+			//check if the left subtree has one of the required keys or not
+			if(it.left == null){
+				//there is no left subtree
+				return null; //no element has key matching d.key
+			}
+			return it.left.search(d); //if left subtree exists, search for the key there
 		}
-		return it;
-		//the loop stops when
-		//1. it is null and hence no such node exists leading to returning of null pointer OR
-		//2. it points to a node which matches d
+		else if(d.key > it.key){
+			//the key of it is smaller than the key needed, search in the right subtree
+			if(it.right == null){
+				return null; //if no right subtree, it has the largest key, not matching d
+			}
+			return it.right.search(d); //search for the key in the right subtree if it exists
+		}
+		else{
+			if(it.key == d.key && it.address == d.address && it.size == d.size){
+				return it; //it is the required element
+			}
+			else{
+				if(it.left != null){
+					BSTree it_l = it.left.search(d); //search in the left subtree
+					if(it_l != null){
+						return it_l; //it_l is the required element if found
+					}
+				}
+				//the left subtree has no match for data, go for the right subtree
+				if(it.right != null){
+					BSTree it_r = it.right.search(d); //search in the right subtree
+					if(it_r != null){
+						return it_r; //it_r is the required element if found
+					}
+				}
+				return null; //if the search yields no output in left or right subtree, the key does not exist and null is returned
+			}
+		}
 	}
 	
 	public void DelNode(BSTree Node){
-		//deletes the node T from the given BSTree
-		//the reference to the node T is known
+		//deletes the node Node from the given BSTree
+		//the reference to the node Node is known
 		BSTree it = Node;
 		if(it.left == null && it.right == null){
 			//it is a leaf
@@ -250,7 +291,7 @@ public class BSTree extends Tree {
 			}
 			it.parent = null;
 		}
-		else if(it.left == null){
+		else if(it.left == null && it.right.left == null && it.right.right == null){
 			//only right child of it exists
 			it.key = it.right.key;
 			it.address = it.right.address;
@@ -258,7 +299,7 @@ public class BSTree extends Tree {
 			it.right.parent = null;
 			it.right = null; //delete the right child
 		}
-		else if(it.right == null){
+		else if(it.right == null && it.left.left == null && it.left.right == null){
 			//only left child of it exists
 			it.key = it.left.key;
 			it.address = it.left.address;
@@ -267,16 +308,21 @@ public class BSTree extends Tree {
 			it.left = null; //delete the left child
 		}
 		else{
-			it = it.right; //move to the right child more than it
-			while(it.left != null){
-				it = it.left;
-				//keep moving left till the least node larger than Node is reached
-				//it is thus the successor of Node and must have maximum one child
+			BSTree it1 = it.getNext(); //move to the successor of it
+			if(it1 == null){
+				it = it.left; //move to the left or a smaller element
+				while(it.right != null){
+					it = it.right; //keep moving right till the right child does not exist
+					//this must lead to the successor of it
+				}
+			}
+			else{
+				it = it1;
 			}
 			Node.key = it.key;
 			Node.address = it.address;
 			Node.size = it.size; //copy the contents of it in Node
-			Node.DelNode(it); //Delete it from the tree
+			this.DelNode(it); //Delete it from the tree
 		}
 	}
 	
