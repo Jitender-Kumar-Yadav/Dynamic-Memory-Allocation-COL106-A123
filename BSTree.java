@@ -119,8 +119,8 @@ public class BSTree extends Tree {
     {
 		BSTree it = this;
 		if(it.parent == null){
-			return it.getFirst();
-			//if it is a sentinel node, its first element must be returned
+			return null;
+			//if it is a sentinel node, null returned
 		}
 		if(it.right != null){
 			//if it has a right node, or a right subtree, inorder is performed on that subtree
@@ -161,7 +161,7 @@ public class BSTree extends Tree {
     }
 	
 	//The following functions are only helper functions and will be kept private.
-	public boolean compare(Dictionary a)
+	private boolean compare(Dictionary a)
 	{
 		//this function returns true if this is smaller than (or equal to) a, else false
 		return (this.key != a.key)?(this.key < a.key):(this.address <= a.address);
@@ -172,7 +172,7 @@ public class BSTree extends Tree {
 			//it returns whether this has smaller (or at least equal) address than a
 	}
 	
-	public BSTree getRoot(){
+	private BSTree getRoot(){
 		//this function returns the root of the binary tree
 		//if the tree is empty, null is returned
 		BSTree it = this;
@@ -192,7 +192,7 @@ public class BSTree extends Tree {
 		//the node is a sentinel without a child, hence the tree is empty
 	}
 	
-	public BSTree Find_current(int key, boolean exact)
+	private BSTree Find_current(int key, boolean exact)
 	{
 		//this function searches the BSTree from current node
 		//all the semantics are same as the Find function
@@ -231,7 +231,7 @@ public class BSTree extends Tree {
 		return null; //if no right subtree, return null as key not found
 	}
 	
-	public BSTree search(Dictionary d)
+	private BSTree search(Dictionary d)
 	{
 		//this function searches a dictionary in the current subtree
 		//returns null if dictionary not found
@@ -275,7 +275,7 @@ public class BSTree extends Tree {
 		}
 	}
 	
-	public void DelNode(BSTree Node){
+	private void DelNode(BSTree Node){
 		//deletes the node Node from the given BSTree
 		//the reference to the node Node is known
 		BSTree it = Node;
@@ -323,54 +323,6 @@ public class BSTree extends Tree {
 			Node.address = it.address;
 			Node.size = it.size; //copy the contents of it in Node
 			this.DelNode(it); //Delete it from the tree
-		}
-	}
-	
-	//The following functions are only for debugging
-	public void printNode(){
-		if(this.parent == null){
-			System.out.println("(" + this.address + "," + this.size + "," + this.key + ")");
-			return;
-		}
-		String t = "L";
-		if(this.parent.right == this){
-			t = "R";
-		}
-		System.out.println("(" + this.address + "," + this.size + "," + this.key + ")" + t);
-	}
-	public void print(){
-		BSTree it = this.getRoot();
-		System.out.println("Starting to print Preorder");
-		if(it != null){
-			it.preorder();
-		}
-		System.out.println("Ended Printing");
-		System.out.println("Starting to print order");
-		it = it.getFirst();
-		while(it != null){
-			it.printNode();
-			it = it.getNext();
-		}
-		System.out.println("Ended Printing");
-	}
-	private void preorder(){
-		BSTree it = this;
-		it.printNode();
-		if(it.left != null){
-			it.left.preorder();
-		}
-		if(it.right != null){
-			it.right.preorder();
-		}
-	}
-	private void inorder(){
-		BSTree it = this;
-		if(it.left != null){
-			it.left.inorder();
-		}
-		it.printNode();
-		if(it.right != null){
-			it.right.inorder();
 		}
 	}
 }
