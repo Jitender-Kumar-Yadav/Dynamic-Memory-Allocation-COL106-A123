@@ -79,11 +79,11 @@ public class AVLTree extends BSTree {
 				}
 			}
 		}
-		Rebalance(last); //rebalance the tree starting at last
+		Rebalance_I(last); //rebalance the tree starting at last
 		return last; //Return the last inserted node
     }
 
-    public boolean Delete(Dictionary e)
+    public boolean Delete(Dictionary d)
     {
         /*Time Complexity: O(h), h = height of AVL Tree
 		Space Complexity: O(1)*/
@@ -107,7 +107,7 @@ public class AVLTree extends BSTree {
 		AVLTree it = this.getRoot(); //the root is called
 		if(it != null){
 			//if the root element is not null
-			it = it.Find_current(key, exact); //find the element with given key conditions and return the smallest
+			it = it.Find_current(k, exact); //find the element with given key conditions and return the smallest
 		}
 		return it;
 		//it is null if tree is empty or the element is not found
@@ -179,7 +179,7 @@ public class AVLTree extends BSTree {
 
     public boolean sanity()
     { 
-        return false;
+        return super.sanity();
     }
 	
 	//The following are helper functions and will be kept private
@@ -362,25 +362,30 @@ public class AVLTree extends BSTree {
 			Node.size = size1; //copy the contents of it in Node
 			return;
 		}
-		Rebalance(last); //rebalance the tree starting at last
+		Rebalance_D(last); //rebalance the tree starting at last
 		return;
 	}
 	
-	private void Rebalance(AVLTree T){
-		//rebalances the AVLTree at node T
+	private void Rebalance_I(AVLTree T){
+		//rebalances the AVLTree at node T after Insertion
 		//traces the tree to root till it is balanced
 		AVLTree it = T; //define iterator
 		AVLTree it_c, it_g;
-		if(it.parent == null || it.parent.parent == null || it.parent.parent.parent == null){
-			return; //nothing to be done if it is sentinel or root or child of root assuming the tree was initially balanced
-		}
 		it_g = it;
-		it_c = it_g.parent;
-		it = it_c.parent; //no imbalance possible till height 2 appears
 		it_g.height = it_g.balanced();
+		if(it_g.parent == null){
+			return;
+		}
+		it_c = it_g.parent;
+		if(it_c.parent == null){
+			return;
+		}
 		it_c.height = it_c.balanced();
-		AVLTree curr;
-		
+		it = it_c.parent; //no imbalance possible till height 2 appears
+		if(it.parent == null){
+			return;
+		}
+		AVLTree curr = null;
 		while(it.parent != null){
 			//continue the loop till it reaches the sentinel node
 			if(it.balanced() == -1){
@@ -389,12 +394,18 @@ public class AVLTree extends BSTree {
 						//Case Left Left
 						RightRotate(it);
 						curr = it_g;
+						it_g.height = it_g.balanced();
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
 					}
 					else{
 						//Case Left Right
 						LeftRotate(it_c);
 						RightRotate(it);
 						curr = it;
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
+						it_g.height = it_g.balanced();
 					}
 				}
 				else{
@@ -403,11 +414,90 @@ public class AVLTree extends BSTree {
 						RightRotate(it_c);
 						LeftRotate(it);
 						curr = it;
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
+						it_g.height = it_g.balanced();
 					}
 					else{
 						//Case Right Right
 						LeftRotate(it);
 						curr = it_g;
+						it_g.height = it_g.balanced();
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
+					}
+				}
+			}
+			else{
+				it.height = it.balanced();
+				curr = it_c;
+			}
+			it_g = curr;
+			it_c = it_g.parent;
+			it = it_c.parent; //move to the top
+		}
+	}
+	
+	private void Rebalance_D(AVLTree T){
+		//rebalances the AVLTree at node T after Deletion
+		//traces the tree to root till it is balanced
+		AVLTree it = T; //define iterator
+		AVLTree it_c, it_g;
+		it.height = it.balanced();
+		if(it.parent == null){
+			return;
+		}
+		it = it.parent;
+		if(it.parent == null){
+			return;
+		}
+		it.height = it.balanced();
+		it = it.parent; //no imbalance possible till height 2 appears
+		if(it.parent == null){
+			return;
+		}
+		it_c = it.Hlargechild();
+		it_g = it_c.Hlargechild(); //no imbalance possible till height 2 appears
+		AVLTree curr = null;
+		while(it.parent != null){
+			//continue the loop till it reaches the sentinel node
+			if(it.balanced() == -1){
+				if(it_c == it.left){
+					if(it_g == it_c.left){
+						//Case Left Left
+						RightRotate(it);
+						curr = it_c.parent;
+						it_g.height = it_g.balanced();
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
+					}
+					else{
+						//Case Left Right
+						LeftRotate(it_c);
+						RightRotate(it);
+						curr = it_g.parent;
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
+						it_g.height = it_g.balanced();
+					}
+				}
+				else{
+					if(it_g == it_c.left){
+						//Case Right Left
+						RightRotate(it_c);
+						LeftRotate(it);
+						curr = it_g.parent;
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
+						it_g.height = it_g.balanced();
+					}
+					else{
+						//Case Right Right
+						LeftRotate(it);
+						curr = it_c.parent;
+						it_g.height = it_g.balanced();
+						it.height = it.balanced();
+						it_c.height = it_c.balanced();
 					}
 				}
 				it_g.height = it_g.balanced();
@@ -416,10 +506,11 @@ public class AVLTree extends BSTree {
 			}
 			else{
 				it.height = it.balanced();
+				curr = it.parent;
 			}
-			it_g = curr;
-			it_c = it_g.parent;
-			it = it_c.parent; //if it is balanced, move to the top
+			it = curr;
+			it_c = it.Hlargechild();
+			it_g = it_c.Hlargechild(); //move to the top
 		}
 	}
 	
@@ -436,7 +527,9 @@ public class AVLTree extends BSTree {
 		}
 		z.parent = y.parent; //shift parent of y to that of z
 		y.right = Tmid;
-		Tmid.parent = y; //set Tmid as right child of y
+		if(Tmid != null){
+			Tmid.parent = y; //set Tmid as right child of y
+		}
 		z.left = y;
 		y.parent = z; //set y as the left child of z
 	}
@@ -454,7 +547,9 @@ public class AVLTree extends BSTree {
 		}
 		y.parent = z.parent; //shift parent of y to that of z
 		z.left = Tmid;
-		Tmid.parent = z; //set Tmid as left child of z
+		if(Tmid != null){
+			Tmid.parent = z; //set Tmid as left child of z
+		}
 		y.right = z;
 		z.parent = y; //set z as right left child of y
 	}
@@ -477,12 +572,21 @@ public class AVLTree extends BSTree {
 		else{
 			r = right.height;
 		}
-		diff = Math.abs(l - r); //store the difference of heights
+		int diff = Math.abs(l - r); //store the difference of heights
 		if(diff <= 1){
 			return Math.max(l + 1, r + 1); //if the tree is balanced at this, return the height
 		}
 		return -1; //this is not balanced
 	}
+	
+	private AVLTree Hlargechild(){
+		//returns the child of this with larger height
+		if(left == null){
+			return right;
+		}
+		if(right == null){
+			return left;
+		}
+		return (left.height >= right.height)? left : right; //return larger height node if both not null
+	}
 }
-
-
