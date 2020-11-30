@@ -1,5 +1,6 @@
 // Class: Height balanced AVL Tree
 // Binary Search Tree
+import java.lang.Math;
 
 public class AVLTree extends BSTree {
     
@@ -368,10 +369,63 @@ public class AVLTree extends BSTree {
 	private void Rebalance(AVLTree T){
 		//rebalances the AVLTree at node T
 		//traces the tree to root till it is balanced
+		AVLTree it = T; //define iterator
+		AVLTree it_c, it_g;
+		if(it.parent == null || it.parent.parent == null || it.parent.parent.parent == null){
+			return; //nothing to be done if it is sentinel or root or child of root assuming the tree was initially balanced
+		}
+		it_g = it;
+		it_c = it_g.parent;
+		it = it_c.parent; //no imbalance possible till height 2 appears
+		it_g.height = it_g.balanced();
+		it_c.height = it_c.balanced();
+		AVLTree curr;
+		
+		while(it.parent != null){
+			//continue the loop till it reaches the sentinel node
+			if(it.balanced() == -1){
+				if(it_c == it.left){
+					if(it_g == it_c.left){
+						//Case Left Left
+						RightRotate(it);
+						curr = it_g;
+					}
+					else{
+						//Case Left Right
+						LeftRotate(it_c);
+						RightRotate(it);
+						curr = it;
+					}
+				}
+				else{
+					if(it_g == it_c.left){
+						//Case Right Left
+						RightRotate(it_c);
+						LeftRotate(it);
+						curr = it;
+					}
+					else{
+						//Case Right Right
+						LeftRotate(it);
+						curr = it_g;
+					}
+				}
+				it_g.height = it_g.balanced();
+				it_c.height = it_c.balanced();
+				it.height = it.balanced();
+			}
+			else{
+				it.height = it.balanced();
+			}
+			it_g = curr;
+			it_c = it_g.parent;
+			it = it_c.parent; //if it is balanced, move to the top
+		}
 	}
 	
 	private void LeftRotate(AVLTree y){
 		//causes a left rotation at node y
+		//returns the topmost node
 		AVLTree z = y.right; //get the right child of y, this becomes the new top node
 		AVLTree Tmid = z.left; //the left child of z is detached from z and added to y
 		if(y.parent.left == y){
@@ -389,6 +443,7 @@ public class AVLTree extends BSTree {
 	
 	private void RightRotate(AVLTree z){
 		//causes a right rotation at node z
+		//returns the topmost node
 		AVLTree y = z.left; //get the left child of z, this becomes the new top node
 		AVLTree Tmid = y.right; //the right child of y is detached from y and added to z
 		if(z.parent.left == z){
@@ -402,6 +457,31 @@ public class AVLTree extends BSTree {
 		Tmid.parent = z; //set Tmid as left child of z
 		y.right = z;
 		z.parent = y; //set z as right left child of y
+	}
+	
+	private int balanced(){
+		//this function returns -1 if this is not balanced
+		//else it returns the height of this
+		int l, r; //these represent the heights of left and right trees
+		if(left == null){
+			//if left child is null, set l (left height) to -1
+			l = -1;
+		}
+		else{
+			l = left.height;
+		}
+		if(right == null){
+			//if right child is null, set r (right height) to -1
+			r = -1;
+		}
+		else{
+			r = right.height;
+		}
+		diff = Math.abs(l - r); //store the difference of heights
+		if(diff <= 1){
+			return Math.max(l + 1, r + 1); //if the tree is balanced at this, return the height
+		}
+		return -1; //this is not balanced
 	}
 }
 
