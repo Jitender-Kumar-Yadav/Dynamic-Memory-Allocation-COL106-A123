@@ -76,6 +76,7 @@ public class BSTree extends Tree {
     {
 		/*Time Complexity: O(h), h = height of binary search Tree
 		Space Complexity: O(1)*/
+		if(d == null){return true;}
 		if(d.key == -1 && d.address == -1 && d.size == -1){
 			return false;
 			//removal of sentinel node is not permitted

@@ -39,6 +39,7 @@ public class A1List extends List {
 
     public boolean Delete(Dictionary d) 
     {
+		if(d == null){return true;}
 		if(d.key == -1 && d.address == -1 && d.size == -1){
 			return false;
 			//removal of head and tail sentinels is not permitted
